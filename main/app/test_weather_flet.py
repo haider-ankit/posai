@@ -72,7 +72,7 @@ def weather_app(page: ft.Page):
     page.window_height = 1000
 
     city_input = ft.TextField(label="Enter city name", width=300)
-    weather_output = ft.Text("", width=350)
+    weather_output = ft.Text("")
 
     def get_weather_info(e):
         city = city_input.value
