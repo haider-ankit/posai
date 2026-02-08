@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 DB_PATH = DATA_DIR / "posai.db"
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
