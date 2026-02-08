@@ -2,6 +2,7 @@
 *.vbs
 *.bat
 *.cmd
+.env
 
 # Database files
 *.db
