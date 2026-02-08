@@ -1,3 +1,10 @@
+# Operations files
 *.vbs
 *.bat
 *.cmd
+
+# Database files
+*.db
+
+# Unused scripts
+other_scripts
