@@ -160,10 +160,14 @@ def weather_app_container(page: ft.Page):
         )
     )
 
+    return container
+
+
+def flet_app_create(page: ft.Page):
     page.add(
-        container
+        weather_app_container(page)
     )
 
 
 if __name__ == "__main__":
-    ft.run(main=weather_app_container)
+    ft.run(main=flet_app_create)
