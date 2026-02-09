@@ -1,4 +1,5 @@
 import flet as ft
+import flet_webview as fw
 import requests
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
@@ -7,6 +8,7 @@ import os
 load_dotenv()
 API_KEY = os.getenv("OWM_API_KEY")
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+MAP_URL = "https://www.openstreetmap.org/export/embed.html?bbox={lon}%2C{lat}%2C{lon}%2C{lat}&layer=mapnik"
 
 
 def get_weather(city):
@@ -54,7 +56,7 @@ def get_weather(city):
     return None
 
 
-def format_weather_info(page, city_input, result_text):
+def format_weather_and_map_info(page, city_input, result_text, map_frame):
     city_name = city_input.value.strip()
     if not city_name:
         result_text.value = "Please enter a city name."
@@ -88,6 +90,13 @@ Wind Direction: {weather_data['Wind Direction']}
 Wind Gust: {weather_data['Wind Gust']}
 Cloudiness: {weather_data['Cloudiness']}
 """
+
+    map_frame.visible = True
+    map_frame.url = MAP_URL.format(
+        lon=weather_data["Longitude"].replace("°", ""),
+        lat=weather_data["Latitude"].replace("°", "")
+    )
+
     page.update()
     return
 
@@ -113,7 +122,7 @@ def weather_app_container(page: ft.Page):
     # Search Button to trigger weather retrieval.
     search_button = ft.Button(
         "Search",
-        on_click = lambda e: format_weather_info(page, city_input, result_text),
+        on_click = lambda e: format_weather_and_map_info(page, city_input, result_text, map_frame),
         bgcolor = ft.Colors.BLUE_500,
         color = ft.Colors.WHITE,
         style = ft.ButtonStyle(
@@ -132,6 +141,14 @@ def weather_app_container(page: ft.Page):
         color = ft.Colors.WHITE
     )
 
+    # Map element to display location on OpenStreetMap.
+    map_frame = fw.WebView(
+        url = "",
+        width = 600,
+        height = 400,
+        visible = False
+    )
+
     # Container to hold the input and button, styled for better appearance.
     container = ft.Container(
         content = ft.Column(
@@ -146,7 +163,8 @@ def weather_app_container(page: ft.Page):
                 ),
                 city_input,
                 search_button,
-                result_text
+                result_text,
+                map_frame
             ]
         ),
         alignment = ft.Alignment.CENTER,
