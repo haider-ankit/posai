@@ -8,6 +8,7 @@ load_dotenv()
 API_KEY = os.getenv("OWM_API_KEY")
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
+
 def get_weather(city):
     params = {"q": city, "appid": API_KEY, "units": "metric"}
     response = requests.get(BASE_URL, params=params)
@@ -44,8 +45,7 @@ def get_weather(city):
             "Wind Gust": str(data["wind"].get("gust", " ")) + " m/s",
 
             # Cloudiness and Time description.
-            "Cloudiness": str(data["clouds"]["all"]) + "%",
-            
+            "Cloudiness": str(data["clouds"]["all"]) + "%"
         }
         return result
     print(f"Error: HTTP {response.status_code}")
@@ -53,55 +53,117 @@ def get_weather(city):
     print(f"API_KEY set: {bool(API_KEY)}")
     return None
 
-# weather = get_weather("Mumbai")
-# weather_info = f"""The current weather in {weather['City']}, {weather['Country']} (Timezone: {weather['Timezone']}) is {weather['Weather']}, with a temperature of {weather['Temperature']} (feels like {weather['Feels Like']}). Today's high is {weather['Max Temp']} and low is {weather['Min Temp']}. The atmospheric pressure is {weather['Pressure']} with a humidity of {weather['Humidity']}. Visibility is around {weather['Visibility']} and wind is blowing at {weather['Wind Speed']} from {weather['Wind Direction']} with gusts up to {weather['Wind Gust']}. Cloudiness is at {weather['Cloudiness']}.
-# Coordinates: Latitude {weather['Latitude']}, Longitude {weather['Longitude']}.
-# Sunrise: {weather['Sunrise']}, Sunset: {weather['Sunset']}.
-# Sea Level Pressure: {weather['Sea Level']}, Ground Level Pressure: {weather['Ground Level']}."""
 
-# print(weather_info)
-
-def weather_app(page: ft.Page):
-    page.title = "Weather App"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.MainAxisAlignment.CENTER
-    page.bgcolor = ft.Colors.BLUE_GREY_900
-    page.theme_mode = ft.ThemeMode.DARK
-    page.padding = 20
-    page.window_width = 1500
-    page.window_height = 1000
-
-    city_input = ft.TextField(label="Enter city name", width=300)
-    weather_output = ft.Text("")
-
-    def get_weather_info(e):
-        city = city_input.value
-        if city:
-            weather = get_weather(city)
-            if weather:
-                weather_output.value = f"""The current weather in {weather['City']}, {weather['Country']} (Timezone: {weather['Timezone']}) is {weather['Weather']}, with a temperature of {weather['Temperature']} (feels like {weather['Feels Like']}). \n
-Today's high is {weather['Max Temp']} and low is {weather['Min Temp']}. \n
-The atmospheric pressure is {weather['Pressure']} with a humidity of {weather['Humidity']}. \n
-Visibility is around {weather['Visibility']} and wind is blowing at {weather['Wind Speed']} from {weather['Wind Direction']} with gusts up to {weather['Wind Gust']}. \n
-Cloudiness is at {weather['Cloudiness']}.\n
-Coordinates: Latitude {weather['Latitude']}, Longitude {weather['Longitude']}. \n
-Sunrise: {weather['Sunrise']}, Sunset: {weather['Sunset']}. \n
-Sea Level Pressure: {weather['Sea Level']}, Ground Level Pressure: {weather['Ground Level']}."""
-            else:
-                weather_output.value = "Error retrieving weather data."
+def format_weather_info(page, city_input, result_text):
+    city_name = city_input.value.strip()
+    if not city_name:
+        result_text.value = "Please enter a city name."
         page.update()
+        return
 
-    page.add(
-        ft.Column(
-            [
-                city_input,
-                ft.ElevatedButton("Get Weather", on_click=get_weather_info),
-                weather_output
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER
+    weather_data = get_weather(city_name)
+    if not weather_data:
+        result_text.value = "Error retrieving weather data."
+        page.update()
+        return
+
+    result_text.value = f"""
+Weather information for {weather_data['City']}, {weather_data['Country']} ({weather_data['Timezone']}) {datetime.now().strftime('%Y-%m-%d')}:
+Weather: {weather_data['Weather']}
+Latitude: {weather_data['Latitude']}, Longitude: {weather_data['Longitude']}
+Sunrise: {weather_data['Sunrise']} Hours, Sunset: {weather_data['Sunset']} Hours
+
+Temperature
+{weather_data['Temperature']} (Feels Like: {weather_data['Feels Like']})
+Max: {weather_data['Max Temp']} Min: {weather_data['Min Temp']}
+
+Others
+Pressure: {weather_data['Pressure']}
+Humidity: {weather_data['Humidity']}
+Sea Level: {weather_data['Sea Level']}
+Ground Level: {weather_data['Ground Level']}
+Visibility: {weather_data['Visibility']}
+Wind Speed: {weather_data['Wind Speed']}
+Wind Direction: {weather_data['Wind Direction']}
+Wind Gust: {weather_data['Wind Gust']}
+Cloudiness: {weather_data['Cloudiness']}
+"""
+    page.update()
+    return
+
+
+def weather_app_container(page: ft.Page):
+    page.title = "Weather App"
+    page.bgcolor = ft.Colors.BLUE_GREY_900
+    page.padding = 20
+    page.horizontal_alignment = ft.MainAxisAlignment.CENTER
+    page.window_width = 500
+    page.window_height = 700
+    page.scroll = "auto"
+
+    # Text box to enter city name.
+    city_input = ft.TextField(
+        label = "Enter City Name",
+        width = 300,
+        bgcolor = ft.Colors.WHITE,
+        color = ft.Colors.BLACK,
+        border_radius = 10
+    )
+
+    # Search Button to trigger weather retrieval.
+    search_button = ft.Button(
+        "Search",
+        on_click = lambda e: format_weather_info(page, city_input, result_text),
+        bgcolor = ft.Colors.BLUE_500,
+        color = ft.Colors.WHITE,
+        style = ft.ButtonStyle(
+            shape = ft.RoundedRectangleBorder(
+                radius = 10
+            ),
+            padding = 10
         )
     )
 
+    # Output element to display weather information.
+    result_text = ft.Text(
+        "",
+        size = 18,
+        weight = ft.FontWeight.BOLD,
+        color = ft.Colors.WHITE
+    )
+
+    # Container to hold the input and button, styled for better appearance.
+    container = ft.Container(
+        content = ft.Column(
+            alignment = ft.MainAxisAlignment.CENTER,
+            horizontal_alignment = ft.CrossAxisAlignment.CENTER,
+            controls = [
+                ft.Text(
+                    "Weather App",
+                    size = 30,
+                    weight = ft.FontWeight.BOLD,
+                    color = ft.Colors.WHITE
+                ),
+                city_input,
+                search_button,
+                result_text
+            ]
+        ),
+        alignment = ft.Alignment.CENTER,
+        padding = 20,
+        border_radius = 15,
+        bgcolor = ft.Colors.BLUE_GREY_800,
+        shadow = ft.BoxShadow(
+            blur_radius = 15,
+            spread_radius = 2,
+            color = ft.Colors.BLACK_12
+        )
+    )
+
+    page.add(
+        container
+    )
+
+
 if __name__ == "__main__":
-    ft.app(target=weather_app)
+    ft.run(main=weather_app_container)
