@@ -1,0 +1,1 @@
+# Login interface common for all logins.
