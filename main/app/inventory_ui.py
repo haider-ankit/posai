@@ -3,6 +3,24 @@
 # Main inventory logic
 
 import flet as ft
+import sqlite3
+from pathlib import Path
+
+def get_categories_from_db():
+    """Fetch categories from the database"""
+    try:
+        DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+        DB_PATH = DATA_DIR / "posai.db"
+        
+        conn = sqlite3.connect(str(DB_PATH))
+        cur = conn.cursor()
+        cur.execute("SELECT NAME FROM CATEGORIES ORDER BY NAME")
+        categories = [row[0] for row in cur.fetchall()]
+        conn.close()
+        return categories
+    except Exception as e:
+        print(f"Error fetching categories: {e}")
+        return ["Electronics", "Groceries", "Wholesale", "Office Supplies","Others"]  # Fallback
 
 def main(page: ft.Page):
     page.title = "Inventory Management"
@@ -32,22 +50,19 @@ def main(page: ft.Page):
     # Using a Text control for the currency prefix
     product_price = ft.TextField(
         label="Price", 
-        prefix=ft.Text("$ "), 
+        prefix=ft.Text("Rs. "), 
         width=150, 
         keyboard_type=ft.KeyboardType.NUMBER
     )
     
     quantity = ft.TextField(label="Quantity", width=150, keyboard_type=ft.KeyboardType.NUMBER)
     
+    # Fetch categories from database
+    categories = get_categories_from_db()
     supplier_category = ft.Dropdown(
         label="Supplier Category",
         hint_text="Select Category",
-        options=[
-            ft.dropdown.Option("Electronics"),
-            ft.dropdown.Option("Groceries"),
-            ft.dropdown.Option("Wholesale"),
-            ft.dropdown.Option("Office Supplies"),
-        ],
+        options=[ft.dropdown.Option(cat) for cat in categories],
         expand=True
     )
 
