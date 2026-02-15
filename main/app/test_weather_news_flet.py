@@ -104,7 +104,7 @@ def get_news(city):
     params = {
         "q": city,
         "apiKey": NEWS_API_KEY,
-        "pageSize": 5,
+        "pageSize": 20,
         "sortBy": "publishedAt",
         "language": "en"
     }
