@@ -8,13 +8,13 @@ def home_page(page: ft.Page):
 
     # Create buttons for navigation
     sale_button = ft.Button(
-        "Sale Portal", 
+        "Sale", 
         on_click=lambda e: page.go(
             "/sale"
         )
     )
     inventory_button = ft.Button(
-        "Inventory Portal", 
+        "Inventory", 
         on_click=lambda e: page.go(
             "/inventory"
         )
