@@ -6,111 +6,169 @@ import flet as ft
 import sqlite3
 from pathlib import Path
 
-def get_categories_from_db():
-    """Fetch categories from the database"""
+# Database path setup
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+DB_PATH = DATA_DIR / "posai.db"
+
+def get_db_connection():
+    return sqlite3.connect(str(DB_PATH))
+
+def get_categories():
     try:
-        DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-        DB_PATH = DATA_DIR / "posai.db"
-        
-        conn = sqlite3.connect(str(DB_PATH))
+        conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT NAME FROM CATEGORIES ORDER BY NAME")
-        categories = [row[0] for row in cur.fetchall()]
+        cur.execute("SELECT ID, NAME FROM CATEGORIES ORDER BY NAME")
+        rows = cur.fetchall()
         conn.close()
-        return categories
-    except Exception as e:
-        print(f"Error fetching categories: {e}")
-        return ["Electronics", "Groceries", "Wholesale", "Office Supplies","Others"]  # Fallback
+        return rows
+    except:
+        return []
 
 def main(page: ft.Page):
-    page.title = "Inventory Management"
-    page.theme_mode = ft.ThemeMode.LIGHT
+    page.title = "Inventory Pro"
+    page.theme_mode = ft.ThemeMode.DARK
     page.padding = 30
     page.scroll = "adaptive"
 
-    # --- Header ---
-    header = ft.Text(
-        "Product Inventory Entry", 
-        size=30, 
-        weight=ft.FontWeight.BOLD, 
-        color="blue700"
-    )
-
-    # --- Barcode Section ---
-    barcode_input = ft.TextField(
-        label="Scan Barcode", 
-        prefix_icon="center_focus_strong", # Changed to a more universal icon name
-        hint_text="Click here and scan...",
-        autofocus=True
-    )
-
-    # --- Manual Entry Fields ---
+    # --- UI Components (Defined at top-level so functions can access them) ---
+    barcode_input = ft.TextField(label="Barcode (SKU)", prefix_icon="qr_code", autofocus=True)
     product_name = ft.TextField(label="Product Name", expand=True)
+    cost_price = ft.TextField(label="Cost Price", prefix=ft.Text("Rs. "), expand=1)
+    sell_price = ft.TextField(label="Selling Price", prefix=ft.Text("Rs. "), expand=1)
+    stock = ft.TextField(label="Current Stock", value="0", expand=1)
+    reorder = ft.TextField(label="Reorder Level", value="10", expand=1)
     
-    # Using a Text control for the currency prefix
-    product_price = ft.TextField(
-        label="Price", 
-        prefix=ft.Text("Rs. "), 
-        width=150, 
-        keyboard_type=ft.KeyboardType.NUMBER
-    )
-    
-    quantity = ft.TextField(label="Quantity", width=150, keyboard_type=ft.KeyboardType.NUMBER)
-    
-    # Fetch categories from database
-    categories = get_categories_from_db()
-    supplier_category = ft.Dropdown(
-        label="Supplier Category",
-        hint_text="Select Category",
-        options=[ft.dropdown.Option(cat) for cat in categories],
+    category_dropdown = ft.Dropdown(
+        label="Category",
+        options=[ft.dropdown.Option(key=str(c[0]), text=c[1]) for c in get_categories()],
         expand=True
     )
 
-    # --- Action Logic ---
-    def add_or_update(e):
-        if not product_name.value or not product_price.value:
-            # We use a snackbar to give feedback
-            page.snack_bar = ft.SnackBar(ft.Text("Please fill in the product name and price!"))
-            page.snack_bar.open = True
-        else:
-            page.snack_bar = ft.SnackBar(ft.Text(f"Successfully updated: {product_name.value}"))
-            page.snack_bar.open = True
-        page.update()
+    recent_table = ft.DataTable(
+        columns=[
+            ft.DataColumn(ft.Text("SKU")),
+            ft.DataColumn(ft.Text("Product")),
+            ft.DataColumn(ft.Text("Stock")),
+            ft.DataColumn(ft.Text("Price")),
+        ],
+        rows=[]
+    )
+
+    # --- Logic Functions ---
 
     def clear_fields(e):
+        """Explicitly resets all field values"""
         barcode_input.value = ""
         product_name.value = ""
-        product_price.value = ""
-        quantity.value = ""
-        supplier_category.value = None
+        cost_price.value = ""
+        sell_price.value = ""
+        stock.value = "0"
+        reorder.value = "10"
+        category_dropdown.value = None
+        barcode_input.focus() # Put cursor back in barcode field
+        page.update()
+        print("Fields Cleared") # Debugging line
+
+    def update_recent_list():
+        recent_table.rows.clear()
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT SKU, NAME, CURRENT_STOCK, SELLING_PRICE FROM PRODUCTS ORDER BY UPDATED_AT DESC LIMIT 5")
+            for row in cur.fetchall():
+                recent_table.rows.append(
+                    ft.DataRow(cells=[ft.DataCell(ft.Text(str(c))) for c in row])
+                )
+            conn.close()
+        except Exception as ex:
+            print(f"Table update error: {ex}")
         page.update()
 
-    # --- Buttons ---
-    btn_save = ft.ElevatedButton(
-        "Add / Update Product", 
-        icon="save", # String based icon name
-        on_click=add_or_update,
-        style=ft.ButtonStyle(color="white", bgcolor="blue700")
-    )
-    
-    btn_clear = ft.OutlinedButton(
-        "Clear Form", 
-        icon="refresh", # String based icon name
-        on_click=clear_fields
-    )
+    def search_product(e):
+        sku = barcode_input.value.strip()
+        if not sku: return
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""SELECT NAME, CATEGORY_ID, COST_PRICE, SELLING_PRICE, CURRENT_STOCK, REORDER_LEVEL 
+                       FROM PRODUCTS WHERE SKU = ?""", (sku,))
+        res = cur.fetchone()
+        conn.close()
 
-    # --- Layout Construction ---
+        if res:
+            product_name.value = str(res[0])
+            category_dropdown.value = str(res[1])
+            cost_price.value = str(res[2])
+            sell_price.value = str(res[3])
+            stock.value = str(res[4])
+            reorder.value = str(res[5])
+            page.snack_bar = ft.SnackBar(ft.Text("Product loaded."), bgcolor="green700")
+        else:
+            # Clear other fields if SKU is new
+            product_name.value = ""
+            category_dropdown.value = None
+            cost_price.value = ""
+            sell_price.value = ""
+            stock.value = "0"
+            page.snack_bar = ft.SnackBar(ft.Text("New SKU detected."))
+        
+        page.snack_bar.open = True
+        page.update()
+
+    def save_product(e):
+        sku = barcode_input.value.strip()
+        if not sku or not product_name.value:
+            page.snack_bar = ft.SnackBar(ft.Text("SKU and Name are required!"), bgcolor="red700")
+            page.snack_bar.open = True
+            page.update()
+            return
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT ID FROM PRODUCTS WHERE SKU = ?", (sku,))
+        exists = cur.fetchone()
+
+        params = (
+            product_name.value, category_dropdown.value, cost_price.value,
+            sell_price.value, stock.value, reorder.value, sku
+        )
+
+        if exists:
+            cur.execute("""UPDATE PRODUCTS SET NAME=?, CATEGORY_ID=?, COST_PRICE=?, 
+                           SELLING_PRICE=?, CURRENT_STOCK=?, REORDER_LEVEL=?, UPDATED_AT=CURRENT_TIMESTAMP 
+                           WHERE SKU=?""", params)
+        else:
+            cur.execute("""INSERT INTO PRODUCTS (NAME, CATEGORY_ID, COST_PRICE, SELLING_PRICE, 
+                           CURRENT_STOCK, REORDER_LEVEL, SKU) VALUES (?,?,?,?,?,?,?)""", params)
+        
+        conn.commit()
+        conn.close()
+        update_recent_list()
+        page.snack_bar = ft.SnackBar(ft.Text("Inventory Updated!"), bgcolor="blue700")
+        page.snack_bar.open = True
+        clear_fields(None) # Call the fixed clear function after saving
+
+    # --- Setup Events ---
+    barcode_input.on_submit = search_product
+    update_recent_list()
+
+    # --- Page Layout ---
     page.add(
-        header,
-        ft.Divider(height=20, color="transparent"),
-        ft.Text("Quick Scan", weight=ft.FontWeight.W_600),
+        ft.Text("Inventory Management", size=32, weight="bold", color="blue700"),
+        ft.Divider(),
+        ft.Text("Step 1: Scan Barcode", weight="bold"),
         barcode_input,
-        ft.Divider(height=30),
-        ft.Text("Manual Entry Details", weight=ft.FontWeight.W_600),
-        ft.Row([product_name, product_price]),
-        ft.Row([quantity, supplier_category]),
         ft.Divider(height=20, color="transparent"),
-        ft.Row([btn_save, btn_clear], alignment=ft.MainAxisAlignment.START)
+        ft.Text("Step 2: Product Details", weight="bold"),
+        ft.Row([product_name, category_dropdown]),
+        ft.Row([cost_price, sell_price, stock, reorder]),
+        ft.Row([
+            ft.ElevatedButton("Save/Update Item", icon="save", on_click=save_product, bgcolor="blue700", color="white"),
+            ft.OutlinedButton("Clear Form", icon="clear", on_click=clear_fields) # Linked to clear_fields
+        ]),
+        ft.Divider(height=40),
+        ft.Text("Recently Updated Items", size=20, weight="bold"),
+        recent_table
     )
 
 ft.app(target=main)
