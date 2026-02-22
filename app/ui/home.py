@@ -1,5 +1,6 @@
 # Home screen for sale or inventory ui selection.
 import flet as ft
+from app.ui.sale import sale_route
 
 def home_page(page: ft.Page):
     page.title = "Home"
@@ -9,8 +10,8 @@ def home_page(page: ft.Page):
     # Create buttons for navigation
     sale_button = ft.Button(
         "Sale", 
-        on_click=lambda e: page.go(
-            "/sale"
+        on_click=lambda e: page.views.append(
+            sale_route()
         )
     )
     inventory_button = ft.Button(
@@ -28,4 +29,4 @@ def home_page(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=home_page)
+    ft.run(main=home_page)
