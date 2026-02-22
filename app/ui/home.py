@@ -28,9 +28,8 @@ def home_page(page: ft.Page):
             sale_route()
         ),
         bgcolor=ft.Colors.WHITE_38,
-        expand=True,
-        height=300,
-        width=300,
+        height=200,
+        width=250,
         style=ft.ButtonStyle(
             shape=ft.RoundedRectangleBorder(
                 radius=10
@@ -49,9 +48,8 @@ def home_page(page: ft.Page):
             "/inventory"
         ),
         bgcolor=ft.Colors.WHITE_38,
-        expand=True,
-        height=300,
-        width=300,
+        height=200,
+        width=250,
         style=ft.ButtonStyle(
             shape=ft.RoundedRectangleBorder(
                 radius=10
@@ -66,7 +64,7 @@ def home_page(page: ft.Page):
         ],
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
         spacing=20,
-        width=800,
+        width=900,
         height=300
     )
 
