@@ -1,6 +1,6 @@
 # Home screen for sale or inventory ui selection.
 import flet as ft
-from app.ui.sale import sale_route
+from .sale import sale_route
 
 def home_page(page: ft.Page):
     page.title = "Home"
