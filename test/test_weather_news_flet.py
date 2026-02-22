@@ -164,7 +164,6 @@ def login_view(page: ft.Page):
         ]
     )
 
-
 def home_view(page: ft.Page):
     def go_weather(e):
         page.go("/weather")
