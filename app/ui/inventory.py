@@ -24,7 +24,7 @@ def get_categories():
     except:
         return []
 
-def main(page: ft.Page):
+def inventory_page(page: ft.Page):
     page.title = "Inventory Pro"
     page.theme_mode = ft.ThemeMode.DARK
     page.padding = 30
@@ -171,4 +171,5 @@ def main(page: ft.Page):
         recent_table
     )
 
-ft.app(target=main)
+if __name__ == "__main__":
+    ft.app(target=inventory_page)
