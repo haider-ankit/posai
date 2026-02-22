@@ -10,10 +10,20 @@ Home Page:
         Login - 
             Barcode input field,
             Manual entry field - [Barcode number (Prodect Name, Price), Quantity, Total Price calculation]
-            Inventory update - Update count only.
+            Checkout - 
+                Inventory update - Update count only.
+                Payment history update.
+            
 
     Button - Inventory Building UI:
         Login - 
             Barcode input field,
             Manual entry field - [Barcode number (Prodect Name, Price), Quantity, supplier category etc.]
             Inventory update - Add new product or update existing product.
+
+Business Logic:
+    DB Init - Table creations, View creations and trigger creations.
+    Categories - Logic to handle all category table related operations.
+    Products - Logic to handle all products table related operations.
+    Transactions - Logic to handle all transactions table related operations.
+    Product History - Logic to handle all inventory log table related operations.

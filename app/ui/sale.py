@@ -70,7 +70,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         spacing=20
     )
 
-    submit_button = ft.Button(
+    add_to_cart_button = ft.Button(
         content=ft.Text(
             "Add to Cart", 
             size=16, 
@@ -89,7 +89,7 @@ def sale_container(page: ft.Page) -> ft.Container:
                 sale_label,
                 input_row,
                 customer_total,
-                submit_button
+                add_to_cart_button
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
