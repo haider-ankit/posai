@@ -6,42 +6,73 @@ def home_page(page: ft.Page):
     page.title = "Home"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.bgcolor = ft.Colors.BLUE_GREY_700
+
+    # Set page title
+    title = ft.Text(
+        "POS.AI", 
+        size=32, 
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.WHITE
+    )
 
     # Create buttons for navigation
     sale_button = ft.Button(
         content = ft.Text(
-            "Sale", 
+            "SALE", 
             size=24, 
             weight=ft.FontWeight.BOLD,
-            color=ft.Colors.BLACK
+            color=ft.Colors.WHITE
         ),
         on_click=lambda e: page.views.append(
             sale_route()
+        ),
+        bgcolor=ft.Colors.WHITE_38,
+        expand=True,
+        height=300,
+        width=300,
+        style=ft.ButtonStyle(
+            shape=ft.RoundedRectangleBorder(
+                radius=10
+            )
         )
     )
+
     inventory_button = ft.Button(
         content = ft.Text(
-            "Inventory", 
+            "INVENTORY", 
             size=24, 
             weight=ft.FontWeight.BOLD,
-            color=ft.Colors.BLACK
+            color=ft.Colors.WHITE
         ),
         on_click=lambda e: page.go(
             "/inventory"
+        ),
+        bgcolor=ft.Colors.WHITE_38,
+        expand=True,
+        height=300,
+        width=300,
+        style=ft.ButtonStyle(
+            shape=ft.RoundedRectangleBorder(
+                radius=10
+            )
         )
     )
 
     ui_button = ft.Row(
-        controls=[
-            sale_button, 
-            inventory_button
+        controls=[ 
+            inventory_button,
+            sale_button
         ],
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        alignment=ft.MainAxisAlignment.CENTER
+        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+        spacing=20,
+        width=800,
+        height=300
     )
 
     # Add buttons to the page
     page.add(
+        title,
         ui_button
     )
 
