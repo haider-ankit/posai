@@ -1,10 +1,7 @@
-# user arrives
-# login
-# Main sale logic
 import flet as ft
 
 
-def sale_container() -> ft.Container:
+def sale_container(page: ft.Page) -> ft.Container:
     sale_label = ft.Text(
         "POS.AI", 
         size=24, 
@@ -82,6 +79,14 @@ def sale_container() -> ft.Container:
         height = 50
     )
 
+    customer_row = ft.Row(
+        controls=[
+            customer_total
+        ],
+        alignment=ft.MainAxisAlignment.END,
+        spacing=20
+    )
+
     checkout_button = ft.Button(
         content=ft.Text(
             "Checkout", 
@@ -94,6 +99,28 @@ def sale_container() -> ft.Container:
         color=ft.Colors.BLACK
     )
 
+    checkout_row = ft.Row(
+        controls=[
+            checkout_button
+        ],
+        alignment=ft.MainAxisAlignment.END,
+        spacing=20
+    )
+    
+    def back_home(e):
+        page.go("/home")
+
+    back_button = ft.TextButton(
+        content=ft.Text(
+            "⬅ Back",
+            size=20, 
+            weight=ft.FontWeight.BOLD
+        ),
+        on_click=back_home,
+        width=100,
+        height=50
+    )
+
     # Add components to the page
     container = ft.Container(
         content=ft.Column(
@@ -101,8 +128,9 @@ def sale_container() -> ft.Container:
                 sale_label,
                 input_row,
                 add_to_cart_button,
-                customer_total,
-                checkout_button
+                customer_row,
+                checkout_row,
+                back_button
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -125,14 +153,14 @@ def sale_page(page: ft.Page):
     )
 
 
-def sale_route() -> ft.View:
+def sale_view(page: ft.Page) -> ft.View:
     return ft.View(
         route = "/sale",
         bgcolor=ft.Colors.BLUE_GREY_700,
         vertical_alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
-            sale_container()
+            sale_container(page)
         ]
     )
 

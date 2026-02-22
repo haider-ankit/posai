@@ -1,15 +1,10 @@
-# Home screen for sale or inventory ui selection.
 import flet as ft
-from .sale import sale_route
+from .sale import sale_view
+# from .inventory import inventory_view
 
 
-def home_page(page: ft.Page):
-    page.title = "Home"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.bgcolor = ft.Colors.BLUE_GREY_700
-
-    # Set page title
+def home_container(page: ft.Page) -> ft.Container:
+    # Create title
     title = ft.Text(
         "POS.AI", 
         size=32, 
@@ -25,8 +20,8 @@ def home_page(page: ft.Page):
             weight=ft.FontWeight.BOLD,
             color=ft.Colors.WHITE
         ),
-        on_click=lambda e: page.views.append(
-            sale_route()
+        on_click=lambda e: page.go(
+            "/sale"
         ),
         bgcolor=ft.Colors.WHITE_38,
         height=200,
@@ -45,12 +40,12 @@ def home_page(page: ft.Page):
             weight=ft.FontWeight.BOLD,
             color=ft.Colors.WHITE
         ),
-        on_click=lambda e: page.go(
-            "/inventory"
-        ),
+        # on_click=lambda e: page.go(
+        #     "/inventory"
+        # ),
         bgcolor=ft.Colors.WHITE_38,
         height=200,
-        width=200,
+        width=250,
         style=ft.ButtonStyle(
             shape=ft.RoundedRectangleBorder(
                 radius=10
@@ -69,10 +64,37 @@ def home_page(page: ft.Page):
         height=300
     )
 
-    # Add buttons to the page
+    container = ft.Container(
+        content=ft.Column(
+            controls=[
+                title,
+                ui_button
+            ],
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
+        ),
+        expand=True,
+        alignment=ft.Alignment.CENTER
+    )
+
+    return container
+
+
+def home_page(page: ft.Page):
     page.add(
-        title,
-        ui_button
+        home_container(page)
+    )
+
+
+def home_view(page: ft.Page) -> ft.View:
+    return ft.View(
+        route="/home",
+        vertical_alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        bgcolor=ft.Colors.BLUE_GREY_700,
+        controls=[
+            home_container(page)
+        ]
     )
 
 
