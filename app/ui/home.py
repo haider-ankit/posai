@@ -2,6 +2,7 @@
 import flet as ft
 from .sale import sale_route
 
+
 def home_page(page: ft.Page):
     page.title = "Home"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
@@ -49,7 +50,7 @@ def home_page(page: ft.Page):
         ),
         bgcolor=ft.Colors.WHITE_38,
         height=200,
-        width=250,
+        width=200,
         style=ft.ButtonStyle(
             shape=ft.RoundedRectangleBorder(
                 radius=10
