@@ -9,22 +9,40 @@ def home_page(page: ft.Page):
 
     # Create buttons for navigation
     sale_button = ft.Button(
-        "Sale", 
+        content = ft.Text(
+            "Sale", 
+            size=24, 
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.BLACK
+        ),
         on_click=lambda e: page.views.append(
             sale_route()
         )
     )
     inventory_button = ft.Button(
-        "Inventory", 
+        content = ft.Text(
+            "Inventory", 
+            size=24, 
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.BLACK
+        ),
         on_click=lambda e: page.go(
             "/inventory"
         )
     )
 
+    ui_button = ft.Row(
+        controls=[
+            sale_button, 
+            inventory_button
+        ],
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        alignment=ft.MainAxisAlignment.CENTER
+    )
+
     # Add buttons to the page
     page.add(
-        sale_button, 
-        inventory_button
+        ui_button
     )
 
 
