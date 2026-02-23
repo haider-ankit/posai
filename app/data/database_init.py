@@ -1,9 +1,9 @@
 """
 SQLite Database Initialization Script for Local-First POS System
 
-This module provides database initialization, schema creation, and configuration
-for the Local-First POS system. It implements the database design specified
-in the design document with proper indexing, constraints, and performance optimizations.
+This module provides database initialization based on the schema arguments, and configuration
+for the PAS.AI system. It implements the database design specified
+in the arguments with proper indexing, constraints, and performance optimizations.
 """
 
 import sqlite3

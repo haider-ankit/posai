@@ -22,7 +22,7 @@ Home Page:
             Inventory update - Add new product or update existing product.
 
 Business Logic:
-    DB Init - Table creations, View creations and trigger creations.
+    Database Init - Table creations, View creations, Trigger creations and performance optimisations.
     Categories - Logic to handle all category table related operations.
     Products - Logic to handle all products table related operations.
     Transactions - Logic to handle all transactions table related operations.
