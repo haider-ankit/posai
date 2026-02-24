@@ -1,36 +1,20 @@
-# user arrives
-# login
-# Main inventory logic
-
 import flet as ft
-import sqlite3
+import sys
 from pathlib import Path
 
-# Database path setup
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-DB_PATH = DATA_DIR / "posai.db"
+root_path = Path(__file__).resolve().parents[1]
+if str(root_path) not in sys.path:
+    sys.path.insert(0, str(root_path))
 
-def get_db_connection():
-    return sqlite3.connect(str(DB_PATH))
-
-def get_categories():
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT ID, NAME FROM CATEGORIES ORDER BY NAME")
-        rows = cur.fetchall()
-        conn.close()
-        return rows
-    except:
-        return []
+from data import products as db
 
 def inventory_page(page: ft.Page):
-    page.title = "Inventory Pro"
+    page.title = "Inventory"
     page.theme_mode = ft.ThemeMode.DARK
     page.padding = 30
     page.scroll = "adaptive"
 
-    # --- UI Components (Defined at top-level so functions can access them) ---
+    # --- UI Components ---
     barcode_input = ft.TextField(label="Barcode (SKU)", prefix_icon="qr_code", autofocus=True)
     product_name = ft.TextField(label="Product Name", expand=True)
     cost_price = ft.TextField(label="Cost Price", prefix=ft.Text("Rs. "), expand=1)
@@ -40,7 +24,7 @@ def inventory_page(page: ft.Page):
     
     category_dropdown = ft.Dropdown(
         label="Category",
-        options=[ft.dropdown.Option(key=str(c[0]), text=c[1]) for c in get_categories()],
+        options=[ft.dropdown.Option(key=str(c[0]), text=c[1]) for c in db.get_categories()],
         expand=True
     )
 
@@ -55,9 +39,7 @@ def inventory_page(page: ft.Page):
     )
 
     # --- Logic Functions ---
-
     def clear_fields(e):
-        """Explicitly resets all field values"""
         barcode_input.value = ""
         product_name.value = ""
         cost_price.value = ""
@@ -65,35 +47,23 @@ def inventory_page(page: ft.Page):
         stock.value = "0"
         reorder.value = "10"
         category_dropdown.value = None
-        barcode_input.focus() # Put cursor back in barcode field
+        barcode_input.focus()
         page.update()
-        print("Fields Cleared") # Debugging line
 
     def update_recent_list():
         recent_table.rows.clear()
-        try:
-            conn = get_db_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT SKU, NAME, CURRENT_STOCK, SELLING_PRICE FROM PRODUCTS ORDER BY UPDATED_AT DESC LIMIT 5")
-            for row in cur.fetchall():
-                recent_table.rows.append(
-                    ft.DataRow(cells=[ft.DataCell(ft.Text(str(c))) for c in row])
-                )
-            conn.close()
-        except Exception as ex:
-            print(f"Table update error: {ex}")
+        rows = db.get_recent_products()
+        for row in rows:
+            recent_table.rows.append(
+                ft.DataRow(cells=[ft.DataCell(ft.Text(str(c))) for c in row])
+            )
         page.update()
 
     def search_product(e):
         sku = barcode_input.value.strip()
         if not sku: return
         
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("""SELECT NAME, CATEGORY_ID, COST_PRICE, SELLING_PRICE, CURRENT_STOCK, REORDER_LEVEL 
-                       FROM PRODUCTS WHERE SKU = ?""", (sku,))
-        res = cur.fetchone()
-        conn.close()
+        res = db.find_product_by_sku(sku)
 
         if res:
             product_name.value = str(res[0])
@@ -104,7 +74,6 @@ def inventory_page(page: ft.Page):
             reorder.value = str(res[5])
             page.snack_bar = ft.SnackBar(ft.Text("Product loaded."), bgcolor="green700")
         else:
-            # Clear other fields if SKU is new
             product_name.value = ""
             category_dropdown.value = None
             cost_price.value = ""
@@ -123,51 +92,33 @@ def inventory_page(page: ft.Page):
             page.update()
             return
 
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT ID FROM PRODUCTS WHERE SKU = ?", (sku,))
-        exists = cur.fetchone()
-
-        params = (
-            product_name.value, category_dropdown.value, cost_price.value,
-            sell_price.value, stock.value, reorder.value, sku
+        db.upsert_product(
+            sku, product_name.value, category_dropdown.value, 
+            cost_price.value, sell_price.value, stock.value, reorder.value
         )
-
-        if exists:
-            cur.execute("""UPDATE PRODUCTS SET NAME=?, CATEGORY_ID=?, COST_PRICE=?, 
-                           SELLING_PRICE=?, CURRENT_STOCK=?, REORDER_LEVEL=?, UPDATED_AT=CURRENT_TIMESTAMP 
-                           WHERE SKU=?""", params)
-        else:
-            cur.execute("""INSERT INTO PRODUCTS (NAME, CATEGORY_ID, COST_PRICE, SELLING_PRICE, 
-                           CURRENT_STOCK, REORDER_LEVEL, SKU) VALUES (?,?,?,?,?,?,?)""", params)
         
-        conn.commit()
-        conn.close()
         update_recent_list()
         page.snack_bar = ft.SnackBar(ft.Text("Inventory Updated!"), bgcolor="blue700")
         page.snack_bar.open = True
-        clear_fields(None) # Call the fixed clear function after saving
+        clear_fields(None)
 
     # --- Setup Events ---
     barcode_input.on_submit = search_product
     update_recent_list()
 
-    # --- Page Layout ---
+    # --- Layout ---
     page.add(
         ft.Text("Inventory Management", size=32, weight="bold", color="blue700"),
         ft.Divider(),
-        ft.Text("Step 1: Scan Barcode", weight="bold"),
         barcode_input,
-        ft.Divider(height=20, color="transparent"),
-        ft.Text("Step 2: Product Details", weight="bold"),
         ft.Row([product_name, category_dropdown]),
         ft.Row([cost_price, sell_price, stock, reorder]),
         ft.Row([
             ft.ElevatedButton("Save/Update Item", icon="save", on_click=save_product, bgcolor="blue700", color="white"),
-            ft.OutlinedButton("Clear Form", icon="clear", on_click=clear_fields) # Linked to clear_fields
+            ft.OutlinedButton("Clear Form", icon="clear", on_click=clear_fields)
         ]),
-        ft.Divider(height=40),
-        ft.Text("Recently Updated Items", size=20, weight="bold"),
+        ft.Divider(),
+        ft.Text("Recently Updated", size=20, weight="bold"),
         recent_table
     )
 
