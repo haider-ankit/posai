@@ -7,7 +7,7 @@ import sqlite3
 from pathlib import Path
 
 # Database path setup
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+DATA_DIR = Path(__file__).resolve().parents[2] / "database"
 DB_PATH = DATA_DIR / "posai.db"
 
 def get_db_connection():

@@ -1,6 +1,10 @@
 import flet as ft
 
 
+def back_home(page: ft.Page) -> None:
+    page.go("/home")
+
+
 def sale_container(page: ft.Page) -> ft.Container:
     sale_label = ft.Text(
         "POS.AI", 
@@ -8,21 +12,21 @@ def sale_container(page: ft.Page) -> ft.Container:
         weight=ft.FontWeight.BOLD,
         color = ft.Colors.WHITE
     )
-
+    
     barcode_input = ft.TextField(
         label = "Product Barcode",
         width=300,
         height = 50,
         align=ft.Alignment.CENTER_LEFT
     )
-
+    
     product_name = ft.TextField(
         label = "Product Name",
         width=300,
         height = 50,
         align=ft.Alignment.CENTER_LEFT
     )
-
+    
     product_quantity = ft.TextField(
         label = "Quantity",
         value = "0",
@@ -30,7 +34,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         height = 50,
         align=ft.Alignment.CENTER_LEFT
     )
-
+    
     product_price = ft.TextField(
         label = "Price",
         prefix = ft.Text("₹ "),
@@ -38,7 +42,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         width=150,
         height = 50
     )
-
+    
     product_total = ft.TextField(
         label = "Total",
         prefix = ft.Text("₹ "),
@@ -46,7 +50,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         width=150,
         height = 50
     )
-
+    
     input_row = ft.Row(
         controls=[
             barcode_input,
@@ -58,7 +62,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
         spacing=20
     )
-
+    
     add_to_cart_button = ft.Button(
         content=ft.Text(
             "🛒",
@@ -70,7 +74,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         bgcolor=ft.Colors.WHITE_70,
         color=ft.Colors.BLACK
     )
-
+    
     customer_total = ft.TextField(
         label = "Customer Total",
         prefix = ft.Text("₹ "),
@@ -78,7 +82,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         width=300,
         height = 50
     )
-
+    
     customer_row = ft.Row(
         controls=[
             customer_total
@@ -86,7 +90,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         alignment=ft.MainAxisAlignment.END,
         spacing=20
     )
-
+    
     checkout_button = ft.Button(
         content=ft.Text(
             "Checkout", 
@@ -98,7 +102,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         bgcolor=ft.Colors.GREEN_300,
         color=ft.Colors.BLACK
     )
-
+    
     checkout_row = ft.Row(
         controls=[
             checkout_button
@@ -107,20 +111,17 @@ def sale_container(page: ft.Page) -> ft.Container:
         spacing=20
     )
     
-    def back_home(e):
-        page.go("/home")
-
     back_button = ft.TextButton(
         content=ft.Text(
             "⬅ Back",
             size=20, 
             weight=ft.FontWeight.BOLD
         ),
-        on_click=back_home,
+        on_click=lambda e: back_home(page),
         width=100,
         height=50
     )
-
+    
     # Add components to the page
     container = ft.Container(
         content=ft.Column(
@@ -138,7 +139,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         expand=True,
         alignment=ft.Alignment.CENTER
     )
-
+    
     return container
 
 
@@ -147,9 +148,9 @@ def sale_page(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.bgcolor = ft.Colors.BLUE_GREY_700
-
+    
     page.add(
-        sale_container()
+        sale_container(page)
     )
 
 
