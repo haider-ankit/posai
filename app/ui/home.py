@@ -1,6 +1,13 @@
 import flet as ft
-from .sale import sale_view
 # from .inventory import inventory_view
+
+
+def to_sale(page: ft.Page) -> None:
+    page.go("/sale")
+
+
+def to_inventory(page: ft.Page) -> None:
+    page.go("/inventory")
 
 
 def home_container(page: ft.Page) -> ft.Container:
@@ -20,9 +27,7 @@ def home_container(page: ft.Page) -> ft.Container:
             weight=ft.FontWeight.BOLD,
             color=ft.Colors.WHITE
         ),
-        on_click=lambda e: page.go(
-            "/sale"
-        ),
+        on_click=lambda e: to_sale(page),
         bgcolor=ft.Colors.WHITE_38,
         height=200,
         width=250,
@@ -40,9 +45,7 @@ def home_container(page: ft.Page) -> ft.Container:
             weight=ft.FontWeight.BOLD,
             color=ft.Colors.WHITE
         ),
-        # on_click=lambda e: page.go(
-        #     "/inventory"
-        # ),
+        on_click=lambda e: to_inventory(page),
         bgcolor=ft.Colors.WHITE_38,
         height=200,
         width=250,
@@ -80,7 +83,7 @@ def home_container(page: ft.Page) -> ft.Container:
     return container
 
 
-def home_page(page: ft.Page):
+def home_page(page: ft.Page) -> None:
     page.add(
         home_container(page)
     )

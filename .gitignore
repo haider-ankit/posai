@@ -9,6 +9,7 @@ __pycache__/
 
 # Database files
 *.db
+*.csv
 
 # Unused scripts
 other_scripts
