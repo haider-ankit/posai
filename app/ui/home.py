@@ -1,5 +1,4 @@
 import flet as ft
-# from .inventory import inventory_view
 
 
 def to_sale(page: ft.Page) -> None:

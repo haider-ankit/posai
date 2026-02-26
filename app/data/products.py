@@ -57,3 +57,20 @@ def upsert_product(sku, name, category_id, cost, sell, stock, reorder):
     conn.commit()
     conn.close()
     return True
+
+
+def get_product_by_sku(sku):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT NAME, SELLING_PRICE AS PRICE FROM PRODUCTS WHERE SKU = ?", (sku,))
+    res = cur.fetchone()
+    conn.close()
+    return res if res else None
+
+
+def add_product_from_sale(sku: str, name: str, price: float) -> None:
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO PRODUCTS (SKU, NAME, SELLING_PRICE) VALUES (?, ?, ?)", (sku, name, price))
+    conn.commit()
+    conn.close()

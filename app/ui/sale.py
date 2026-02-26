@@ -1,7 +1,6 @@
 import flet as ft
-import csv
-from pathlib import Path
-CSV_PATH = Path(__file__).resolve().parents[2] / "database" / "cart.csv"
+from app.data.products import get_product_by_sku, add_product_from_sale
+cart = []
 
 
 def back_home(page: ft.Page, product_history: ft.DataTable) -> None:
@@ -27,22 +26,12 @@ def back_home(page: ft.Page, product_history: ft.DataTable) -> None:
     page.go("/home")
 
 
-def to_checkout(page: ft.Page, product_history: ft.DataTable) -> None:
-    CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+def to_checkout(page: ft.Page, product_history: ft.DataTable, cart: list) -> None:
     if product_history.rows:
-        with open(CSV_PATH, mode='w', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file)
-
-            # Write headers from DataTable columns
-            headers = [column.label.value for column in product_history.columns]
-            writer.writerow(headers)
-
-            # Write product data from DataTable rows
-            for row in product_history.rows:
-                row_data = [cell.content.value for cell in row.cells]
-                writer.writerow(row_data)
+        for row in product_history.rows:
+            row_data = [cell.content.value for cell in row.cells]
+            cart.append(row_data)
         
-        # Optionally, you might want to clear the cart after checkout
         product_history.rows.clear()
         page.update()
     else:
@@ -52,21 +41,72 @@ def to_checkout(page: ft.Page, product_history: ft.DataTable) -> None:
 
 
 def log_product_to_cart(page: ft.Page, barcode_input: ft.TextField, product_name: ft.TextField, product_quantity: ft.TextField, product_price: ft.TextField, product_history: ft.DataTable, customer_total: ft.TextField) -> None:
-    row = ft.DataRow(
-        cells=[
-            ft.DataCell(ft.Text(barcode_input.value.strip())),
-            ft.DataCell(ft.Text(product_name.value.strip())),
-            ft.DataCell(ft.Text(str(product_name.value.strip()))),
-            ft.DataCell(ft.Text(f"₹ {str(product_price.value.strip())}")),
-            ft.DataCell(ft.Text(f"₹ {str(int(product_quantity.value.strip()) * int(product_price.value.strip()))}"))
-        ]
-    )
-    product_history.rows.append(row)
-    customer_total.value = f"₹ {str(float(str(customer_total.value).replace('₹ ', '')) + (int(product_quantity.value.strip()) * int(product_price.value.strip())))}"
+    new_barcode = barcode_input.value.strip()
+    qty_to_add = int(product_quantity.value.strip())
+    price_per_unit = int(product_price.value.strip())
+    new_item_total = qty_to_add * price_per_unit
+    
+    found_row = None
+    for row in product_history.rows:
+        if row.cells[0].content.value == new_barcode:
+            found_row = row
+            break
+    
+    if found_row:
+        current_qty = int(found_row.cells[2].content.value)
+        updated_qty = current_qty + qty_to_add
+        found_row.cells[2].content.value = str(updated_qty)
+
+        updated_total = updated_qty * price_per_unit
+        found_row.cells[4].content.value = f"₹ {updated_total}"
+    elif (not found_row) and new_barcode and qty_to_add > 0 and price_per_unit > 0 and product_name.value.strip() and get_product_by_sku(new_barcode) is None:
+        row = ft.DataRow(
+            cells=[
+                ft.DataCell(ft.Text(new_barcode)),
+                ft.DataCell(ft.Text(product_name.value.strip())),
+                ft.DataCell(ft.Text(str(qty_to_add))),
+                ft.DataCell(ft.Text(f"₹ {price_per_unit}")),
+                ft.DataCell(ft.Text(f"₹ {new_item_total}"))
+            ]
+        )
+        product_history.rows.append(row)
+        add_product_from_sale(new_barcode, product_name.value.strip(), float(price_per_unit))
+    elif (not found_row) and new_barcode and qty_to_add > 0 and price_per_unit > 0 and product_name.value.strip() and get_product_by_sku(new_barcode):
+        row = ft.DataRow(
+            cells=[
+                ft.DataCell(ft.Text(new_barcode)),
+                ft.DataCell(ft.Text(product_name.value.strip())),
+                ft.DataCell(ft.Text(str(qty_to_add))),
+                ft.DataCell(ft.Text(f"₹ {price_per_unit}")),
+                ft.DataCell(ft.Text(f"₹ {new_item_total}"))
+            ]
+        )
+        product_history.rows.append(row)
+    
+    current_grand_total = float(customer_total.value.replace('₹ ', ''))
+    customer_total.value = f"₹ {current_grand_total + new_item_total}"
+    
     barcode_input.value = ""
     product_name.value = ""
     product_quantity.value = "0"
     product_price.value = "0"
+    page.update()
+
+
+def on_barcode_change(e: ft.ControlEvent, page: ft.Page, barcode_input: ft.TextField, product_name: ft.TextField, product_price: ft.TextField, product_quantity: ft.TextField) -> None:
+    sku = barcode_input.value.strip()
+    if sku:
+        product = get_product_by_sku(sku)
+        if product:
+            product_name.value = product[0]
+            product_price.value = str(product[1])
+            product_quantity.value = "1"
+        else:
+            product_name.value = ""
+            product_price.value = "0"
+    else:
+        product_name.value = ""
+        product_price.value = "0"
     page.update()
 
 
@@ -82,14 +122,8 @@ def sale_container(page: ft.Page) -> ft.Container:
         label = "Product Barcode",
         width=300,
         height = 50,
-        align=ft.Alignment.CENTER_LEFT
-    )
-    
-    product_name = ft.TextField(
-        label = "Product Name",
-        width=300,
-        height = 50,
-        align=ft.Alignment.CENTER_LEFT
+        align=ft.Alignment.CENTER_LEFT,
+        on_change=lambda e: on_barcode_change(e, page, barcode_input, product_name, product_price, product_quantity)
     )
     
     product_quantity = ft.TextField(
@@ -100,29 +134,26 @@ def sale_container(page: ft.Page) -> ft.Container:
         align=ft.Alignment.CENTER_LEFT
     )
     
+    product_name = ft.TextField(
+        label="Product Name",
+        width=300,
+        height = 50
+    )
+    
     product_price = ft.TextField(
-        label = "Price",
+        label="Price",
         prefix = ft.Text("₹ "),
         value = "0",
         width=150,
         height = 50
     )
     
-    # product_total = ft.TextField(
-    #     label = "Total",
-    #     prefix = ft.Text("₹ "),
-    #     value = "0",
-    #     width=150,
-    #     height = 50
-    # )
-    
     input_row = ft.Row(
         controls=[
             barcode_input,
-            product_name,
             product_quantity,
+            product_name,
             product_price
-            # product_total
         ],
         alignment=ft.MainAxisAlignment.SPACE_EVENLY,
         spacing=20
@@ -130,7 +161,7 @@ def sale_container(page: ft.Page) -> ft.Container:
     
     add_to_cart_button = ft.Button(
         content=ft.Text(
-            "🛒",
+            value="🛒",
             size=20, 
             weight=ft.FontWeight.BOLD
         ),
@@ -163,8 +194,8 @@ def sale_container(page: ft.Page) -> ft.Container:
         width = 800
     )
     
-    customer_total_test = ft.Text(
-        "Total Balance",
+    customer_total_label = ft.Text(
+        value="Total Balance",
         size=16, 
         weight=ft.FontWeight.BOLD,
         align=ft.Alignment.BOTTOM_RIGHT,
@@ -181,7 +212,7 @@ def sale_container(page: ft.Page) -> ft.Container:
     customer_row = ft.Container(
         content=ft.Row(
             controls=[
-                customer_total_test,
+                customer_total_label,
                 customer_total
             ],
             alignment=ft.MainAxisAlignment.END,
@@ -203,11 +234,11 @@ def sale_container(page: ft.Page) -> ft.Container:
     
     checkout_button = ft.Button(
         content=ft.Text(
-            "Checkout", 
+            value="Checkout", 
             size=16, 
             weight=ft.FontWeight.BOLD
         ),
-        on_click=lambda e: to_checkout(page, product_history),
+        on_click=lambda e: to_checkout(page, product_history, cart),
         width=150,
         height=50,
         bgcolor=ft.Colors.GREEN_300,
@@ -224,7 +255,7 @@ def sale_container(page: ft.Page) -> ft.Container:
     
     back_button = ft.TextButton(
         content=ft.Text(
-            "⬅ Back",
+            value="⬅ Back",
             size=20, 
             weight=ft.FontWeight.BOLD
         ),
