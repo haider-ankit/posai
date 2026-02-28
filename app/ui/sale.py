@@ -308,10 +308,64 @@ def sale_view(page: ft.Page) -> ft.View:
     )
 
 
+def checkout_container(page: ft.Page, cart: list) -> ft.Container:
+    checkout_label=ft.Text(
+        "Checkout", 
+        size=24, 
+        weight=ft.FontWeight.BOLD
+    )
+    
+    cart_values = ft.DataTable(
+        columns=[
+            ft.DataColumn(ft.Text("SKU")),
+            ft.DataColumn(ft.Text("Product")),
+            ft.DataColumn(ft.Text("Quantity")),
+            ft.DataColumn(ft.Text("MRP")),
+            ft.DataColumn(ft.Text("Total"))
+        ],
+        rows=[],
+        border=ft.border.all(1, "BLACK"),
+        divider_thickness=2,
+        width = 800
+    )
+    
+    back_button = ft.TextButton(
+        content=ft.Text(
+            value="⬅ Back",
+            size=20, 
+            weight=ft.FontWeight.BOLD
+        ),
+        on_click=lambda e: page.go("/sale"),
+        width=100,
+        height=50
+    )
+    
+    container = ft.Container(
+        content=ft.Column(
+            controls=[
+                checkout_label,
+                cart_values,
+                back_button
+            ],
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        ),
+        expand=True,
+        alignment=ft.Alignment.CENTER
+    )
+    
+    return container
+
+
 def checkout_view(page: ft.Page) -> ft.View:
     return ft.View(
         route = "/checkout",
+        vertical_alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         bgcolor=ft.Colors.BLUE_GREY_700,
+        controls=[
+            checkout_container(page, cart)
+        ]
     )
 
 if __name__ == "__main__":
