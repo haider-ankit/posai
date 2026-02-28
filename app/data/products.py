@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parents[2] / "database" / "posai.db"
+DB_PATH = Path(__file__).resolve().parents[2] / "data" / "posai.db"
 
 def get_db_connection():
     return sqlite3.connect(str(DB_PATH))
@@ -22,7 +22,7 @@ def get_recent_products():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""SELECT SKU, NAME, CURRENT_STOCK, SELLING_PRICE 
-                        FROM PRODUCTS ORDER BY UPDATED_AT DESC LIMIT 5""")
+                        FROM PRODUCTS ORDER BY UPDATED_AT DESC LIMIT 3""")
         rows = cur.fetchall()
         conn.close()
         return rows

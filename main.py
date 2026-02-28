@@ -2,7 +2,7 @@ import flet as ft
 from app.ui.home import home_view
 from app.ui.sale import sale_view
 from app.ui.checkout import checkout_view
-# from app.ui.inventory import inventory_view
+from app.ui.inventory import inventory_view
 
 
 def main(page: ft.Page) -> None:
@@ -32,7 +32,9 @@ def main(page: ft.Page) -> None:
             )
             
         elif page.route == "/inventory":
-            pass
+            page.views.append(
+                inventory_view(page)
+            )
         
         elif page.route == "/checkout":
             page.views.append(

@@ -6,14 +6,14 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parents[2] / "database"
 DB_PATH = DATA_DIR / "posai.db"
 
-from data import products as db
+from app.data import products as db
 
-def inventory_page(page: ft.Page):
-    page.title = "Inventory"
-    page.theme_mode = ft.ThemeMode.DARK
-    page.padding = 30
-    page.scroll = "adaptive"
 
+def back_home(page: ft.Page) -> None:
+    page.go("/home")
+
+
+def inventory_container(page: ft.Page) -> ft.Container:
     # --- UI Components ---
     barcode_input = ft.TextField(label="Barcode (SKU)", prefix_icon="qr_code", autofocus=True)
     product_name = ft.TextField(label="Product Name", expand=True)
@@ -106,20 +106,63 @@ def inventory_page(page: ft.Page):
     barcode_input.on_submit = search_product
     update_recent_list()
 
+    back_button = ft.TextButton(
+        content=ft.Text(
+            value="⬅ Back",
+            size=20, 
+            weight=ft.FontWeight.BOLD
+        ),
+        on_click=lambda e: back_home(page),
+        width=100,
+        height=50
+    )
+
     # --- Layout ---
+    container = ft.Container(
+        content=ft.Column(
+            controls=[
+                ft.Text("Inventory Management", size=32, weight="bold", color="blue700"),
+                ft.Divider(),
+                barcode_input,
+                ft.Row([product_name, category_dropdown]),
+                ft.Row([cost_price, sell_price, stock, reorder]),
+                ft.Row([
+                    ft.ElevatedButton("Save/Update Item", icon="save", on_click=save_product, bgcolor="blue700", color="white"),
+                    ft.OutlinedButton("Clear Form", icon="clear", on_click=clear_fields)
+                ]),
+                ft.Divider(),
+                ft.Text("Recently Updated", size=10, weight="bold"),
+                recent_table,
+                back_button
+            ],
+            scroll="adaptive"
+        ),
+        padding=30,
+        expand=True
+    )
+    
+    return container
+
+
+def inventory_page(page: ft.Page) -> None:
+    page.title = "Inventory"
+    page.theme_mode = ft.ThemeMode.DARK
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    
     page.add(
-        ft.Text("Inventory Management", size=32, weight="bold", color="blue700"),
-        ft.Divider(),
-        barcode_input,
-        ft.Row([product_name, category_dropdown]),
-        ft.Row([cost_price, sell_price, stock, reorder]),
-        ft.Row([
-            ft.ElevatedButton("Save/Update Item", icon="save", on_click=save_product, bgcolor="blue700", color="white"),
-            ft.OutlinedButton("Clear Form", icon="clear", on_click=clear_fields)
-        ]),
-        ft.Divider(),
-        ft.Text("Recently Updated", size=20, weight="bold"),
-        recent_table
+        inventory_container(page)
+    )
+
+
+def inventory_view(page: ft.Page) -> ft.View:
+    return ft.View(
+        route="/inventory",
+        vertical_alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+            inventory_container(page)
+        ]
     )
 
 if __name__ == "__main__":
