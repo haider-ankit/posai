@@ -28,12 +28,13 @@ def back_home(page: ft.Page, product_history: ft.DataTable) -> None:
 
 def to_checkout(page: ft.Page, product_history: ft.DataTable, cart: list) -> None:
     if product_history.rows:
+        cart.clear()
         for row in product_history.rows:
             row_data = [cell.content.value for cell in row.cells]
             cart.append(row_data)
         
-        product_history.rows.clear()
-        page.update()
+        # product_history.rows.clear()
+        # page.update()
     else:
         return
     
@@ -43,7 +44,7 @@ def to_checkout(page: ft.Page, product_history: ft.DataTable, cart: list) -> Non
 def log_product_to_cart(page: ft.Page, barcode_input: ft.TextField, product_name: ft.TextField, product_quantity: ft.TextField, product_price: ft.TextField, product_history: ft.DataTable, customer_total: ft.TextField) -> None:
     new_barcode = barcode_input.value.strip()
     qty_to_add = int(product_quantity.value.strip())
-    price_per_unit = int(product_price.value.strip())
+    price_per_unit = float(product_price.value.strip())
     new_item_total = qty_to_add * price_per_unit
     
     found_row = None
@@ -108,6 +109,15 @@ def on_barcode_change(e: ft.ControlEvent, page: ft.Page, barcode_input: ft.TextF
         product_name.value = ""
         product_price.value = "0"
     page.update()
+
+
+def log_transaction(page: ft.Page, type: str, cash_amount: ft.TextField) -> None:
+    if type == "UPI":
+        cash_amount.visible = False
+        page.update()
+    elif type == "CASH":
+        cash_amount.visible = True
+        page.update()
 
 
 def sale_container(page: ft.Page) -> ft.Container:
@@ -310,10 +320,17 @@ def sale_view(page: ft.Page) -> ft.View:
 
 def checkout_container(page: ft.Page, cart: list) -> ft.Container:
     checkout_label=ft.Text(
-        "Checkout", 
+        value="POS.AI", 
         size=24, 
         weight=ft.FontWeight.BOLD
     )
+    
+    data_rows = []
+    for item_data in cart:
+        cells = []
+        for value in item_data:
+            cells.append(ft.DataCell(ft.Text(value)))
+        data_rows.append(ft.DataRow(cells=cells))
     
     cart_values = ft.DataTable(
         columns=[
@@ -323,10 +340,76 @@ def checkout_container(page: ft.Page, cart: list) -> ft.Container:
             ft.DataColumn(ft.Text("MRP")),
             ft.DataColumn(ft.Text("Total"))
         ],
-        rows=[],
+        rows=data_rows,
         border=ft.border.all(1, "BLACK"),
         divider_thickness=2,
         width = 800
+    )
+    
+    grand_total_label = ft.Text(
+        value="Grand Total: ",
+        size=24, 
+        weight=ft.FontWeight.BOLD,
+        align=ft.Alignment.BOTTOM_RIGHT,
+        color=ft.Colors.WHITE
+    )
+    
+    grand_total = ft.Text(
+        value=f"₹ {sum(float(row.cells[4].content.value.replace('₹ ', '')) for row in cart_values.rows)}",
+        size=24,
+        align=ft.Alignment.BOTTOM_RIGHT,
+        color=ft.Colors.RED
+    )
+    
+    grand_total_row = ft.Row(
+        controls=[
+            grand_total_label,
+            grand_total
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=20
+    )
+    
+    upi_button = ft.Button(
+        content=ft.Text(
+            value="UPI", 
+            size=16, 
+            weight=ft.FontWeight.BOLD
+        ),
+        on_click=lambda e: log_transaction(page, "UPI", cash_amount),
+        width=150,
+        height=50,
+        bgcolor=ft.Colors.GREEN_300,
+        color=ft.Colors.BLACK
+    )
+    
+    cash_button = ft.Button(
+        content=ft.Text(
+            value="CASH", 
+            size=16, 
+            weight=ft.FontWeight.BOLD
+        ),
+        on_click=lambda e: log_transaction(page, "CASH", cash_amount),
+        width=150,
+        height=50,
+        bgcolor=ft.Colors.GREEN_300,
+        color=ft.Colors.BLACK
+    )
+    
+    cash_amount = ft.TextField(
+        label = "Cash Paid",
+        width=200,
+        height = 50,
+        visible=False
+    )
+    
+    payment_row = ft.Row(
+        controls=[
+            upi_button,
+            cash_button
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=20
     )
     
     back_button = ft.TextButton(
@@ -345,6 +428,9 @@ def checkout_container(page: ft.Page, cart: list) -> ft.Container:
             controls=[
                 checkout_label,
                 cart_values,
+                grand_total_row,
+                payment_row,
+                cash_amount,
                 back_button
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
