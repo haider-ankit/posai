@@ -1,7 +1,7 @@
 import flet as ft
 from app.ui.home import home_view
 from app.ui.sale import sale_view
-from app.ui.checkout import checkout_view
+from app.ui.sale import checkout_view
 from app.ui.inventory import inventory_view
 
 
