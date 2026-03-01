@@ -55,4 +55,4 @@ def main(page: ft.Page) -> None:
     route_change()
 
 if __name__ == "__main__":
-    ft.run(main=main)
+    ft.run(main=main, view=ft.AppView.WEB_BROWSER, port=8080)

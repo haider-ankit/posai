@@ -169,11 +169,19 @@ def sale_container(page: ft.Page) -> ft.Container:
         spacing=20
     )
     
+    add_to_cart_label = ft.Text(
+        value="Add to Cart",
+        size=20, 
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.WHITE
+    )
+    
     add_to_cart_button = ft.Button(
         content=ft.Text(
             value="🛒",
             size=20, 
-            weight=ft.FontWeight.BOLD
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.BLACK
         ),
         on_click=lambda e: log_product_to_cart(
             page,
@@ -186,8 +194,17 @@ def sale_container(page: ft.Page) -> ft.Container:
         ),
         width=80,
         height=50,
-        bgcolor=ft.Colors.BLUE_300,
+        bgcolor=ft.Colors.BLACK_38,
         color=ft.Colors.WHITE
+    )
+    
+    add_to_cart_row = ft.Row(
+        controls=[
+            add_to_cart_label,
+            add_to_cart_button
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=20
     )
     
     product_history = ft.DataTable(
@@ -251,7 +268,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         on_click=lambda e: to_checkout(page, product_history, cart),
         width=150,
         height=50,
-        bgcolor=ft.Colors.GREEN_300,
+        bgcolor=ft.Colors.BLACK_38,
         color=ft.Colors.BLACK
     )
     
@@ -280,7 +297,7 @@ def sale_container(page: ft.Page) -> ft.Container:
             controls=[
                 title,
                 input_row,
-                add_to_cart_button,
+                add_to_cart_row,
                 customer_row,
                 checkout_row,
                 back_button
@@ -379,7 +396,7 @@ def checkout_container(page: ft.Page, cart: list) -> ft.Container:
         on_click=lambda e: log_transaction(page, "UPI", cash_amount),
         width=150,
         height=50,
-        bgcolor=ft.Colors.GREEN_300,
+        bgcolor=ft.Colors.BLACK_38,
         color=ft.Colors.BLACK
     )
     
@@ -392,7 +409,7 @@ def checkout_container(page: ft.Page, cart: list) -> ft.Container:
         on_click=lambda e: log_transaction(page, "CASH", cash_amount),
         width=150,
         height=50,
-        bgcolor=ft.Colors.GREEN_300,
+        bgcolor=ft.Colors.BLACK_38,
         color=ft.Colors.BLACK
     )
     
