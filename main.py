@@ -57,4 +57,13 @@ def main(page: ft.Page) -> None:
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8080))
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port, host="0.0.0.0")
+    os.environ["FLET_SERVER_PORT"] = str(port)
+    os.environ["FLET_SERVER_IP"] = "0.0.0.0"
+    
+    ft.app(
+        target=main, 
+        view=ft.AppView.WEB_BROWSER, 
+        port=port, 
+        host="0.0.0.0", 
+        web_renderer=ft.WebRenderer.CANVAS_KIT
+    )
