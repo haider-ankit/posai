@@ -1,3 +1,4 @@
+import os
 import flet as ft
 from app.ui.home import home_view
 from app.ui.sale import sale_view
@@ -55,4 +56,5 @@ def main(page: ft.Page) -> None:
     route_change()
 
 if __name__ == "__main__":
-    ft.run(main=main, view=ft.AppView.WEB_BROWSER, port=8080)
+    port = int(os.getenv("PORT", 8080))
+    ft.run(main=main, view=ft.AppView.WEB_BROWSER, port=port, host="0.0.0.0")
