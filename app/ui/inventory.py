@@ -17,8 +17,8 @@ def inventory_container(page: ft.Page) -> ft.Container:
     # --- UI Components ---
     barcode_input = ft.TextField(label="Barcode (SKU)", prefix_icon="qr_code", autofocus=True)
     product_name = ft.TextField(label="Product Name", expand=True)
-    cost_price = ft.TextField(label="Cost Price", prefix=ft.Text("Rs. "), expand=1)
-    sell_price = ft.TextField(label="Selling Price", prefix=ft.Text("Rs. "), expand=1)
+    cost_price = ft.TextField(label="Cost Price", prefix=ft.Text("₹. "), expand=1)
+    sell_price = ft.TextField(label="Selling Price", prefix=ft.Text("₹. "), expand=1)
     stock = ft.TextField(label="Current Stock", value="0", expand=1)
     reorder = ft.TextField(label="Reorder Level", value="10", expand=1)
     
@@ -109,12 +109,18 @@ def inventory_container(page: ft.Page) -> ft.Container:
     back_button = ft.TextButton(
         content=ft.Text(
             value="⬅ Back",
-            size=20, 
+            size=20,
             weight=ft.FontWeight.BOLD
         ),
         on_click=lambda e: back_home(page),
         width=100,
         height=50
+    )
+
+    back_button_row = ft.Row(
+        controls=[back_button],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=20
     )
 
     # --- Layout ---
@@ -133,9 +139,10 @@ def inventory_container(page: ft.Page) -> ft.Container:
                 ft.Divider(),
                 ft.Text("Recently Updated", size=10, weight="bold"),
                 recent_table,
-                back_button
+                back_button_row
             ],
-            scroll="adaptive"
+            scroll="adaptive",
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN
         ),
         padding=30,
         expand=True
