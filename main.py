@@ -66,6 +66,5 @@ if __name__ == "__main__":
         target=main, 
         view=ft.AppView.WEB_BROWSER, 
         port=port, 
-        host="0.0.0.0", 
-        web_renderer=ft.WebRenderer.AUTO
+        host="0.0.0.0"
     )
