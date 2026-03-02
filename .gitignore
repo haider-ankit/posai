@@ -8,6 +8,7 @@ __pycache__/
 .env
 
 # Database files
+*.db
 *.csv
 
 # Unused scripts
