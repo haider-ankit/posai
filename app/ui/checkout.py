@@ -30,5 +30,5 @@ def checkout_view(page: ft.Page) -> ft.View:
     )
 
 
-if __name__ == "__main__":
-    ft.run(main=checkout_view)
+# if __name__ == "__main__":
+#     ft.run(main=checkout_view)

@@ -100,5 +100,5 @@ def home_view(page: ft.Page) -> ft.View:
     )
 
 
-if __name__ == "__main__":
-    ft.run(main=home_page)
+# if __name__ == "__main__":
+#     ft.run(main=home_page)
