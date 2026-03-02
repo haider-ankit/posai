@@ -8,6 +8,8 @@ dependencies = [
     "flet[all]>=0.80.5",
     "boto3>=1.42.59",
     "websockets==13.1",
+    "langchain-aws>=1.3.1",
+    "langchain-community>=0.4.1",
 ]
 
 [tool.setuptools]

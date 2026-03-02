@@ -1,9 +1,9 @@
 import os
 import flet as ft
 from app.ui.home import home_view
-from app.ui.sale import sale_view
-from app.ui.sale import checkout_view
+from app.ui.sale import sale_view, checkout_view
 from app.ui.inventory import inventory_view
+from app.ui.chat import chat_view
 
 
 def main(page: ft.Page) -> None:
@@ -42,6 +42,11 @@ def main(page: ft.Page) -> None:
                 checkout_view(page)
             )
         
+        elif page.route == "/chat":
+            page.views.append(
+                chat_view(page)
+            )
+        
         else:
             page.views.append(
                 home_view(page)
@@ -57,11 +62,11 @@ def main(page: ft.Page) -> None:
 
 if __name__ == "__main__":
     os.environ["FLET_SERVER_PORT"] = "8080"
-    os.environ["FLET_SERVER_IP"] = "0.0.0.0"
+    # os.environ["FLET_SERVER_IP"] = "0.0.0.0"
 
-    ft.app(
-        target=main,
+    ft.run(
+        main=main,
         view=ft.AppView.WEB_BROWSER,
-        port=8080,                   
-        host="0.0.0.0"                
+        port=8080 #,                   
+        # host="0.0.0.0"                
     )

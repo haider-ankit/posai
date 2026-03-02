@@ -9,6 +9,10 @@ def to_inventory(page: ft.Page) -> None:
     page.go("/inventory")
 
 
+def to_chat(page: ft.Page) -> None:
+    page.go("/chat")
+
+
 def home_container(page: ft.Page) -> ft.Container:
     # Create title
     title = ft.Text(
@@ -65,12 +69,26 @@ def home_container(page: ft.Page) -> ft.Container:
         width=900,
         height=300
     )
+    
+    chat_button = ft.Button(
+        content = ft.Text(
+            "CHAT", 
+            size=16, 
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.WHITE
+        ),
+        on_click=lambda e: to_chat(page),
+        bgcolor=ft.Colors.BLACK_38,
+        height=50,
+        width=100
+    )
 
     container = ft.Container(
         content=ft.Column(
             controls=[
                 title,
-                ui_button
+                ui_button,
+                chat_button
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             alignment=ft.MainAxisAlignment.CENTER,
