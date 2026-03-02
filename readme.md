@@ -4,7 +4,7 @@ POS AI is a offline point of sale system with AI capabilities. It is designed to
 
 This is new.
 
-
+```
 Home Page:
     Button - Sale POS UI:
         Login - 
@@ -20,10 +20,11 @@ Home Page:
             Barcode input field,
             Manual entry field - [Barcode number (Prodect Name, Price), Quantity, supplier category etc.]
             Inventory update - Add new product or update existing product.
+```
 
 Business Logic:
-    Database Init - Table creations, View creations, Trigger creations and performance optimisations.
-    Categories - Logic to handle all category table related operations.
-    Products - Logic to handle all products table related operations.
-    Transactions - Logic to handle all transactions table related operations.
-    Product History - Logic to handle all inventory log table related operations.
+-    Database Init - Table creations, View creations, Trigger creations and performance optimisations.
+-    Categories - Logic to handle all category table related operations.
+-    Products - Logic to handle all products table related operations.
+-    Transactions - Logic to handle all transactions table related operations.
+-    Product History - Logic to handle all inventory log table related operations.
