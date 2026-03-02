@@ -1,12 +1,12 @@
 import os
 import flet as ft
+from app.ui.home import home_view
+from app.ui.sale import sale_view
+from app.ui.sale import checkout_view
+from app.ui.inventory import inventory_view
 
 
 def main(page: ft.Page) -> None:
-    from app.ui.home import home_view
-    from app.ui.sale import sale_view
-    from app.ui.sale import checkout_view
-    from app.ui.inventory import inventory_view
     page.title = "POS.AI"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER

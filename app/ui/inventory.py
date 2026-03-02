@@ -172,5 +172,5 @@ def inventory_view(page: ft.Page) -> ft.View:
         ]
     )
 
-# if __name__ == "__main__":
-#     ft.app(target=inventory_page)
+if __name__ == "__main__":
+    ft.app(target=inventory_page)

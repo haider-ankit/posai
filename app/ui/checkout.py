@@ -1,7 +1,4 @@
 import flet as ft
-import csv
-from pathlib import Path
-CSV_PATH = Path(__file__).resolve().parents[2] / "database" / "cart.csv"
 
 
 def checkout_container(page: ft.Page) -> ft.Container:
