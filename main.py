@@ -61,8 +61,7 @@ if __name__ == "__main__":
     os.environ["FLET_SERVER_IP"] = "0.0.0.0"
     
     ft.app(
-        target=main, 
-        view=ft.AppView.WEB_BROWSER, 
-        port=port, 
+        target=main,
+        port=port,
         host="0.0.0.0"
     )
