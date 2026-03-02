@@ -1,29 +1,25 @@
-FROM python:3.11-slim
+# 1. Use the official Python 3.13 image
+FROM python:3.13-slim
 
-WORKDIR /app
-
-# Install minimal runtime libs required by Flet
+# 2. Install the specific Linux libraries Flet needs to serve the web UI
 RUN apt-get update && apt-get install -y \
     libgtk-3-0 \
     libnss3 \
     libxss1 \
     libasound2 \
-    libglib2.0-0 \
-    libx11-6 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libgbm1 \
-    libpango-1.0-0 \
-    libcairo2 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# 3. Set the working directory inside the container
+WORKDIR /app
 
+# 4. Copy your entire project (including pyproject.toml) into the container
 COPY . .
 
-ENV PORT=8080
+# 5. Install your project and its dependencies (dotenv, flet, boto3, etc.)
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 6. Expose the port for AWS App Runner
 EXPOSE 8080
 
+# 7. Start the app (Make sure your file is named main.py!)
 CMD ["python", "main.py"]
