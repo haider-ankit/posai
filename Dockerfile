@@ -1,21 +1,29 @@
-# Stable Python version supported everywhere
 FROM python:3.11-slim
 
-# Working directory
 WORKDIR /app
 
-# Copy dependency file first (better caching)
-COPY requirements.txt .
+# Install minimal runtime libs required by Flet
+RUN apt-get update && apt-get install -y \
+    libgtk-3-0 \
+    libnss3 \
+    libxss1 \
+    libasound2 \
+    libglib2.0-0 \
+    libx11-6 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
 COPY . .
 
-# App Runner port
 ENV PORT=8080
 EXPOSE 8080
 
-# Start app
 CMD ["python", "main.py"]
