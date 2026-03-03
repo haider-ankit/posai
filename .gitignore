@@ -10,8 +10,11 @@ __pycache__/
 # Database files
 *.db
 *.csv
+database/
 
 # Unused scripts
 other_scripts
 invesntory_ui_test.py
 test_scripts
+aws/
+*.zip
