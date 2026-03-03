@@ -111,13 +111,32 @@ def on_barcode_change(e: ft.ControlEvent, page: ft.Page, barcode_input: ft.TextF
     page.update()
 
 
-def log_transaction(page: ft.Page, type: str, cash_amount: ft.TextField) -> None:
+def on_cash_change(e: ft.ControlEvent, page: ft.Page, cash_amount: ft.TextField, change_amount: ft.TextField, customer_total: ft.TextField) -> None:
+    cash = cash_amount.value.strip()
+    if cash:
+        change_amount.visible = True
+        change = float(cash) - float(customer_total.value.replace('₹ ', ''))
+        change_amount.value = f"Change: ₹ {change}"
+    else:
+        change_amount.value = ""
+    page.update()
+
+
+def payment_type_choice(page: ft.Page, type: str, cash_amount: ft.TextField, change_amount: ft.TextField, finalise_button: ft.Button) -> None:
     if type == "UPI":
         cash_amount.visible = False
+        finalise_button.visible = True
+        change_amount.visible = False
         page.update()
     elif type == "CASH":
         cash_amount.visible = True
+        finalise_button.visible = True
+        change_amount.visible = True
         page.update()
+
+
+def log_payment():
+    pass
 
 
 def sale_container(page: ft.Page) -> ft.Container:
@@ -393,11 +412,11 @@ def checkout_container(page: ft.Page, cart: list) -> ft.Container:
             size=16, 
             weight=ft.FontWeight.BOLD
         ),
-        on_click=lambda e: log_transaction(page, "UPI", cash_amount),
+        on_click=lambda e: payment_type_choice(page, "UPI", cash_amount, change_amount, finalise_button),
         width=150,
         height=50,
         bgcolor=ft.Colors.BLACK_38,
-        color=ft.Colors.BLACK
+        color=ft.Colors.WHITE
     )
     
     cash_button = ft.Button(
@@ -406,17 +425,51 @@ def checkout_container(page: ft.Page, cart: list) -> ft.Container:
             size=16, 
             weight=ft.FontWeight.BOLD
         ),
-        on_click=lambda e: log_transaction(page, "CASH", cash_amount),
+        on_click=lambda e: payment_type_choice(page, "CASH", cash_amount, change_amount, finalise_button),
         width=150,
         height=50,
         bgcolor=ft.Colors.BLACK_38,
-        color=ft.Colors.BLACK
+        color=ft.Colors.WHITE
     )
     
     cash_amount = ft.TextField(
         label = "Cash Paid",
         width=200,
         height = 50,
+        visible=False,
+        on_change=lambda e: on_cash_change(e, page, cash_amount, change_amount, grand_total)
+    )
+    
+    change_amount = ft.Text(
+        value="",
+        size=18, 
+        weight=ft.FontWeight.BOLD,
+        align=ft.Alignment.BOTTOM_RIGHT,
+        color=ft.Colors.WHITE,
+        visible=False
+    )
+    
+    cash_change_row = ft.Row(
+        controls=[
+            cash_amount,
+            change_amount
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=20
+    )
+    
+    finalise_button = ft.Button(
+        content=ft.Text(
+            value="END TRANSACTION", 
+            width=150,
+            size=16, 
+            weight=ft.FontWeight.BOLD
+        ),
+        on_click=lambda e: log_payment(),
+        width=195,
+        height=50,
+        bgcolor=ft.Colors.BLACK_38,
+        color=ft.Colors.WHITE,
         visible=False
     )
     
@@ -447,7 +500,8 @@ def checkout_container(page: ft.Page, cart: list) -> ft.Container:
                 cart_values,
                 grand_total_row,
                 payment_row,
-                cash_amount,
+                cash_change_row,
+                finalise_button,
                 back_button
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
