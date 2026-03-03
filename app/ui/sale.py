@@ -288,7 +288,7 @@ def sale_container(page: ft.Page) -> ft.Container:
         width=150,
         height=50,
         bgcolor=ft.Colors.BLACK_38,
-        color=ft.Colors.BLACK
+        color=ft.Colors.WHITE
     )
     
     checkout_row = ft.Row(

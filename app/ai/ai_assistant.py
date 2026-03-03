@@ -45,6 +45,3 @@ def ask_pos_ai(user_question):
         return response["output"][0]["text"]
     except Exception as e:
         return f"AI Error: {str(e)}"
-    
-
-print(ask_pos_ai("What kinds of beverages are in stock?"))
