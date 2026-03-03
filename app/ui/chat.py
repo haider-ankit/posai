@@ -2,6 +2,9 @@ import flet as ft
 from app.ai.ai_assistant import ask_pos_ai
 
 def ask_pos_ai_formatted(page: ft.Page, user_input: ft.TextField, query_result: ft.Column) -> None:
+    query_result.controls.clear()
+    page.update()
+    
     query = user_input.value.strip()
     result = ask_pos_ai(query)
     if query:
