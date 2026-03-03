@@ -64,11 +64,11 @@ if __name__ == "__main__":
     os.environ["FLET_SERVER_PORT"] = "8080"
     os.environ["FLET_SERVER_IP"] = "0.0.0.0"
 
-    # ft.run(
-    #     main=main,
-    #     view=ft.AppView.WEB_BROWSER,
-    #     port=8080,                   
-    #     host="0.0.0.0"
-    # )
+    ft.run(
+        main=main,
+        view=ft.AppView.WEB_BROWSER,
+        port=8080,                   
+        host="0.0.0.0"
+    )
     
-    ft.run(main=main)
+    # ft.run(main=main)
