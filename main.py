@@ -61,8 +61,8 @@ def main(page: ft.Page) -> None:
     route_change()
 
 if __name__ == "__main__":
-    # os.environ["FLET_SERVER_PORT"] = "8080"
-    # os.environ["FLET_SERVER_IP"] = "0.0.0.0"
+    os.environ["FLET_SERVER_PORT"] = "8080"
+    os.environ["FLET_SERVER_IP"] = "0.0.0.0"
 
     # ft.run(
     #     main=main,
